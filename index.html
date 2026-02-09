@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App</title>
+    
+    <!-- Telegram Web App Script - MUST be in head before other scripts -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .user-info {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .user-info strong {
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--tg-theme-text-color, #000000);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--tg-theme-button-color, #3390ec);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .info-box {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-left: 4px solid var(--tg-theme-button-color, #3390ec);
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Button will be created by Telegram */
+        .telegram-note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Send Message to Bot</h1>
+
+        <div class="user-info" id="userInfo">
+            <p><strong>User:</strong> <span id="userName">Loading...</span></p>
+            <p><strong>User ID:</strong> <span id="userId">-</span></p>
+        </div>
+
+        <form id="messageForm">
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" name="subject" placeholder="Enter subject" required>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" placeholder="Enter your message" required></textarea>
+            </div>
+        </form>
+
+        <div id="status" class="status"></div>
+
+        <div class="telegram-note">
+            💡 Click the button below to send your message to the bot
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram Web App
+        let tg = window.Telegram.WebApp;
+
+        // Expand the Web App to full height
+        tg.expand();
+
+        // Enable closing confirmation
+        tg.enableClosingConfirmation();
+
+        // Get user data from Telegram
+        const user = tg.initDataUnsafe?.user;
+
+        if (user) {
+            document.getElementById('userName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('userId').textContent = user.id;
+        } else {
+            document.getElementById('userName').textContent = 'Unknown';
+            document.getElementById('userId').textContent = 'Not available';
+        }
+
+        // Set up the Main Button
+        tg.MainButton.setText('Send Message');
+        tg.MainButton.color = tg.themeParams.button_color || '#3390ec';
+        tg.MainButton.textColor = tg.themeParams.button_text_color || '#ffffff';
+
+        // Show the Main Button
+        tg.MainButton.show();
+
+        // Handle form input changes
+        const subjectInput = document.getElementById('subject');
+        const messageInput = document.getElementById('message');
+
+        function validateForm() {
+            const subject = subjectInput.value.trim();
+            const message = messageInput.value.trim();
+            
+            if (subject && message) {
+                tg.MainButton.enable();
+                tg.MainButton.color = tg.themeParams.button_color || '#3390ec';
+            } else {
+                tg.MainButton.disable();
+                tg.MainButton.color = '#cccccc';
+            }
+        }
+
+        subjectInput.addEventListener('input', validateForm);
+        messageInput.addEventListener('input', validateForm);
+
+        // Initial validation
+        validateForm();
+
+        // Handle Main Button click
+        tg.MainButton.onClick(function() {
+            const subject = subjectInput.value.trim();
+            const message = messageInput.value.trim();
+
+            if (!subject || !message) {
+                showStatus('Please fill in all fields', 'error');
+                return;
+            }
+
+            // Prepare data to send to bot
+            const data = {
+                subject: subject,
+                message: message,
+                user_id: user?.id || 'unknown',
+                username: user?.username || 'unknown',
+                first_name: user?.first_name || 'unknown',
+                timestamp: new Date().toISOString()
+            };
+
+            // Send data to bot
+            // The bot will receive this in a web_app_data message
+            tg.sendData(JSON.stringify(data));
+
+            // Show success message
+            showStatus('Message sent successfully! ✓', 'success');
+
+            // Optional: Close the Web App after sending
+            // setTimeout(() => {
+            //     tg.close();
+            // }, 1500);
+        });
+
+        // Handle back button
+        tg.BackButton.onClick(function() {
+            tg.close();
+        });
+
+        // Show status messages
+        function showStatus(text, type) {
+            const status = document.getElementById('status');
+            status.textContent = text;
+            status.className = 'status ' + type;
+            status.style.display = 'block';
+
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        // Optional: Show back button
+        // tg.BackButton.show();
+
+        // Set header color (optional)
+        tg.setHeaderColor(tg.themeParams.bg_color || '#ffffff');
+
+        // Log for debugging (remove in production)
+        console.log('Telegram Web App initialized');
+        console.log('User:', user);
+        console.log('Init Data:', tg.initData);
+        console.log('Theme Params:', tg.themeParams);
+    </script>
+</body>
+</html>
