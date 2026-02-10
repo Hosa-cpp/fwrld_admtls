@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Telegram JSON Transfer Demo</title>
+    <title>Telegram Mini App - JSON Demo</title>
+    
+    <!-- CRITICAL: Load Telegram Web App SDK first -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -13,21 +16,21 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
             padding: 20px;
-            padding-bottom: 100px;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto;
         }
 
         h1 {
             font-size: 24px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 8px;
             color: var(--tg-theme-text-color, #000000);
         }
@@ -38,44 +41,31 @@
             margin-bottom: 24px;
         }
 
-        .method-section {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        .user-info {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
             border-radius: 12px;
             padding: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
-        .method-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
+        .user-info-row {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
-        .badge {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 500;
+        .user-info-row:last-child {
+            margin-bottom: 0;
         }
 
-        .badge-simple {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .badge-advanced {
-            background: #2196F3;
-            color: white;
-        }
-
-        .method-desc {
-            font-size: 13px;
+        .label {
             color: var(--tg-theme-hint-color, #999999);
-            margin-bottom: 16px;
-            line-height: 1.4;
+        }
+
+        .value {
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #000000);
         }
 
         .form-group {
@@ -86,16 +76,16 @@
             display: block;
             font-size: 14px;
             font-weight: 500;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: var(--tg-theme-text-color, #000000);
         }
 
         input, select, textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border: 1px solid var(--tg-theme-hint-color, #dddddd);
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             background: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
             font-family: inherit;
@@ -108,141 +98,104 @@
 
         textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
         }
 
-        .button {
-            width: 100%;
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: auto;
+            height: 20px;
+            width: 20px;
+        }
+
+        .info-box {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 3px solid var(--tg-theme-button-color, #3390ec);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .preview-section {
+            margin-top: 24px;
+        }
+
+        .preview-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .preview-box {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            border: 1px solid var(--tg-theme-hint-color, #dddddd);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
             padding: 14px;
             border: none;
             border-radius: 8px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
             font-family: inherit;
+            transition: opacity 0.2s;
         }
 
-        .button:active {
-            opacity: 0.8;
+        button:active {
+            opacity: 0.7;
         }
 
-        .button-primary {
+        .btn-primary {
             background: var(--tg-theme-button-color, #3390ec);
             color: var(--tg-theme-button-text-color, #ffffff);
         }
 
-        .button-secondary {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        .btn-secondary {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
             color: var(--tg-theme-text-color, #000000);
+        }
+
+        .size-indicator {
+            text-align: center;
             margin-top: 8px;
-        }
-
-        .info-box {
-            background: rgba(33, 150, 243, 0.1);
-            border-left: 3px solid #2196F3;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .warning-box {
-            background: rgba(255, 152, 0, 0.1);
-            border-left: 3px solid #FF9800;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .preview-box {
-            background: var(--tg-theme-bg-color, #ffffff);
-            border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            font-family: 'Courier New', monospace;
             font-size: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        .section-divider {
-            height: 1px;
-            background: var(--tg-theme-hint-color, #e0e0e0);
-            margin: 24px 0;
-        }
-
-        .user-info {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-
-        .user-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-
-        .user-info-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .user-info-label {
             color: var(--tg-theme-hint-color, #999999);
         }
 
-        .user-info-value {
-            font-weight: 600;
-            color: var(--tg-theme-text-color, #000000);
+        .size-ok {
+            color: #27ae60;
         }
 
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
+        .size-warning {
+            color: #f39c12;
         }
 
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-        }
-
-        .code-inline {
-            background: rgba(0, 0, 0, 0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-
-        .feature-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 8px;
-        }
-
-        .feature-list li {
-            padding: 4px 0;
-            font-size: 13px;
-            color: var(--tg-theme-hint-color, #666666);
-        }
-
-        .feature-list li:before {
-            content: "•";
-            color: var(--tg-theme-button-color, #3390ec);
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
+        .size-error {
+            color: #e74c3c;
         }
 
         .hidden {
@@ -252,458 +205,221 @@
 </head>
 <body>
     <div class="container">
-        <h1>📤 Telegram JSON Transfer Demo</h1>
-        <p class="subtitle">Test both methods of sending JSON data to your bot</p>
+        <h1>📤 JSON Transfer Demo</h1>
+        <p class="subtitle">Fill out the form and send data to the bot</p>
 
         <!-- User Info Display -->
-        <div class="user-info" id="userInfo">
+        <div class="user-info">
             <div class="user-info-row">
-                <span class="user-info-label">User ID:</span>
-                <span class="user-info-value" id="userId">Loading...</span>
+                <span class="label">User ID:</span>
+                <span class="value" id="userId">Loading...</span>
             </div>
             <div class="user-info-row">
-                <span class="user-info-label">Username:</span>
-                <span class="user-info-value" id="username">Loading...</span>
+                <span class="label">Name:</span>
+                <span class="value" id="userName">Loading...</span>
             </div>
             <div class="user-info-row">
-                <span class="user-info-label">Launch Method:</span>
-                <span class="user-info-value" id="launchMethod">Loading...</span>
+                <span class="label">Username:</span>
+                <span class="value" id="userUsername">Loading...</span>
             </div>
         </div>
 
-        <!-- Method 1: Keyboard Button (sendData) -->
-        <div class="method-section">
-            <div class="method-title">
-                <span>Method 1: Direct Bot Message</span>
-                <span class="badge badge-simple">SIMPLE</span>
+        <form id="mainForm">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" placeholder="Enter your full name" required>
             </div>
-            <p class="method-desc">
-                Uses <code class="code-inline">sendData()</code> - Perfect for keyboard button web apps. 
-                Sends data directly to bot and closes the app.
-            </p>
 
-            <form id="method1Form">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" placeholder="Enter your name" value="John Doe" required>
-                </div>
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
 
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="your@email.com" value="john@example.com" required>
-                </div>
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" placeholder="25" min="1" max="120">
+            </div>
 
-                <div class="form-group">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" placeholder="25" value="30" required>
-                </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country">
+                    <option value="">Select a country</option>
+                    <option value="US">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="IN">India</option>
+                    <option value="BR">Brazil</option>
+                    <option value="MX">Mexico</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
 
-                <div class="form-group">
-                    <label for="country">Country</label>
-                    <select id="country">
-                        <option value="US">United States</option>
-                        <option value="UK">United Kingdom</option>
-                        <option value="CA">Canada</option>
-                        <option value="AU">Australia</option>
-                        <option value="DE">Germany</option>
-                        <option value="FR">France</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" placeholder="Enter your message here..."></textarea>
+            </div>
 
-                <div class="form-group">
-                    <label>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="newsletter" checked>
-                            <span>Subscribe to newsletter</span>
-                        </div>
-                    </label>
-                </div>
-
-                <button type="button" class="button button-secondary" onclick="previewMethod1()">
-                    👁️ Preview JSON
-                </button>
-
-                <div id="method1Preview" class="preview-box hidden"></div>
-
-                <button type="submit" class="button button-primary" style="margin-top: 12px;">
-                    🚀 Send to Bot (App will close)
-                </button>
-            </form>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="newsletter">
+                <label for="newsletter" style="margin: 0;">Subscribe to newsletter</label>
+            </div>
 
             <div class="info-box">
-                <strong>📝 Limitations:</strong>
-                <ul class="feature-list">
-                    <li>Maximum 4096 bytes</li>
-                    <li>One-time send only</li>
-                    <li>App closes immediately</li>
-                    <li>No server required</li>
-                </ul>
+                <strong>ℹ️ How it works:</strong><br>
+                Click "Send to Bot" to transmit this data as JSON to your Telegram bot.
+                The Mini App will close automatically after sending.
+                Maximum data size: 4096 bytes.
             </div>
-        </div>
 
-        <div class="section-divider"></div>
-
-        <!-- Method 2: Server Communication -->
-        <div class="method-section">
-            <div class="method-title">
-                <span>Method 2: Server Communication</span>
-                <span class="badge badge-advanced">ADVANCED</span>
-            </div>
-            <p class="method-desc">
-                Uses <code class="code-inline">initData</code> - For inline keyboard/menu button apps. 
-                Sends data to your server with verified authentication.
-            </p>
-
-            <form id="method2Form">
-                <div class="form-group">
-                    <label for="productName">Product Name</label>
-                    <input type="text" id="productName" placeholder="Enter product name" value="Premium Widget" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="quantity">Quantity</label>
-                    <input type="number" id="quantity" placeholder="1" value="5" min="1" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="price">Price ($)</label>
-                    <input type="number" id="price" placeholder="99.99" value="49.99" step="0.01" min="0" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="notes">Additional Notes</label>
-                    <textarea id="notes" placeholder="Any special instructions...">Please include gift wrapping</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="serverUrl">Your Server Endpoint</label>
-                    <input type="url" id="serverUrl" placeholder="https://your-server.com/api/submit" 
-                           value="https://your-server.com/api/submit">
-                </div>
-
-                <button type="button" class="button button-secondary" onclick="previewMethod2()">
-                    👁️ Preview JSON + Init Data
+            <div class="btn-group">
+                <button type="button" class="btn-secondary" onclick="previewData()">
+                    👁️ Preview
                 </button>
-
-                <div id="method2Preview" class="preview-box hidden"></div>
-
-                <button type="submit" class="button button-primary" style="margin-top: 12px;">
-                    📡 Send to Server (Demo Mode)
+                <button type="submit" class="btn-primary">
+                    🚀 Send to Bot
                 </button>
-            </form>
-
-            <div class="warning-box">
-                <strong>⚠️ Server Required:</strong>
-                <ul class="feature-list">
-                    <li>Needs backend to receive data</li>
-                    <li>Must validate initData signature</li>
-                    <li>App stays open after sending</li>
-                    <li>Supports multiple requests</li>
-                </ul>
             </div>
+        </form>
 
-            <div class="info-box" style="margin-top: 12px;">
-                <strong>🔐 Security:</strong> The <code class="code-inline">initData</code> includes a cryptographic hash 
-                that your server must verify to ensure the request is authentic and hasn't been tampered with.
-            </div>
-        </div>
-
-        <div class="section-divider"></div>
-
-        <!-- Init Data Explorer -->
-        <div class="method-section">
-            <div class="method-title">
-                <span>🔍 Init Data Explorer</span>
-            </div>
-            <p class="method-desc">
-                View the authentication data Telegram provides to your Mini App
-            </p>
-
-            <button type="button" class="button button-secondary" onclick="showInitData()">
-                Show Full Init Data
-            </button>
-
-            <div id="initDataDisplay" class="preview-box hidden"></div>
-
-            <div class="info-box" style="margin-top: 12px;">
-                <strong>💡 Tip:</strong> The <code class="code-inline">initData</code> string should be sent to your 
-                server in the Authorization header for validation. Never trust data without verifying the hash!
-            </div>
-        </div>
-
-        <!-- Instructions -->
-        <div class="section-divider"></div>
-
-        <div class="method-section">
-            <div class="method-title">
-                <span>📚 Bot Setup Instructions</span>
-            </div>
-            
-            <h3 style="font-size: 15px; margin-bottom: 8px; margin-top: 12px;">For Method 1 (Keyboard Button):</h3>
-            <div class="preview-box">
-# Python Bot Code
-from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
-
-async def start(update: Update, context):
-    keyboard = [[
-        KeyboardButton(
-            text="Open App",
-            web_app=WebAppInfo(url="YOUR_APP_URL")
-        )
-    ]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    await update.message.reply_text("Click to open:", reply_markup=reply_markup)
-
-async def handle_web_app_data(update: Update, context):
-    data = update.message.web_app_data.data
-    await update.message.reply_text(f"Received: {data}")
-
-app = Application.builder().token("BOT_TOKEN").build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
-app.run_polling()
-            </div>
-
-            <h3 style="font-size: 15px; margin-bottom: 8px; margin-top: 16px;">For Method 2 (Inline Keyboard):</h3>
-            <div class="preview-box">
-# Python Bot Code
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler
-
-async def start(update: Update, context):
-    keyboard = [[
-        InlineKeyboardButton(
-            text="Open App",
-            web_app=WebAppInfo(url="YOUR_APP_URL")
-        )
-    ]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Open app:", reply_markup=reply_markup)
-            </div>
+        <!-- Preview Section -->
+        <div id="previewSection" class="preview-section hidden">
+            <div class="preview-title">📋 Data Preview</div>
+            <div class="preview-box" id="previewBox"></div>
+            <div class="size-indicator" id="sizeIndicator"></div>
         </div>
     </div>
 
     <script>
         // Initialize Telegram Web App
         const tg = window.Telegram.WebApp;
+        
+        // Initialize the app
         tg.ready();
-
-        // Expand the web app to full height
         tg.expand();
 
-        // Apply theme colors
+        // Apply Telegram theme colors
         document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
 
-        // Display user info
+        // Display user information
         function displayUserInfo() {
             const user = tg.initDataUnsafe.user;
-            const queryId = tg.initDataUnsafe.query_id;
             
-            document.getElementById('userId').textContent = user?.id || 'N/A';
-            document.getElementById('username').textContent = user?.username || user?.first_name || 'N/A';
-            
-            // Determine launch method
-            let launchMethod = 'Unknown';
-            if (queryId) {
-                launchMethod = 'Inline Keyboard/Menu Button';
-            } else if (tg.initData) {
-                launchMethod = 'Keyboard Button (likely)';
+            if (user) {
+                document.getElementById('userId').textContent = user.id || 'N/A';
+                document.getElementById('userName').textContent = 
+                    (user.first_name || '') + ' ' + (user.last_name || '') || 'N/A';
+                document.getElementById('userUsername').textContent = 
+                    user.username ? '@' + user.username : 'N/A';
             } else {
-                launchMethod = 'Browser (Testing)';
+                document.getElementById('userId').textContent = 'Not available';
+                document.getElementById('userName').textContent = 'Testing in browser';
+                document.getElementById('userUsername').textContent = 'N/A';
             }
-            document.getElementById('launchMethod').textContent = launchMethod;
         }
 
         displayUserInfo();
 
-        // Method 1: Preview JSON
-        function previewMethod1() {
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                age: parseInt(document.getElementById('age').value),
-                country: document.getElementById('country').value,
-                newsletter: document.getElementById('newsletter').checked,
-                timestamp: new Date().toISOString(),
-                method: 'sendData'
-            };
-
-            const jsonString = JSON.stringify(formData, null, 2);
-            const preview = document.getElementById('method1Preview');
-            preview.textContent = jsonString;
-            preview.classList.remove('hidden');
-
-            // Check size
-            const size = new Blob([jsonString]).size;
-            if (size > 4096) {
-                tg.showAlert(`⚠️ Warning: Data size is ${size} bytes, which exceeds the 4096 byte limit!`);
-            } else {
-                tg.showPopup({
-                    title: '✅ Valid',
-                    message: `Data size: ${size} bytes (within 4096 limit)`,
-                    buttons: [{type: 'ok'}]
-                });
-            }
-        }
-
-        // Method 1: Submit (sendData)
-        document.getElementById('method1Form').addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                age: parseInt(document.getElementById('age').value),
-                country: document.getElementById('country').value,
-                newsletter: document.getElementById('newsletter').checked,
-                timestamp: new Date().toISOString(),
-                method: 'sendData',
+        // Function to gather form data
+        function getFormData() {
+            return {
                 user: {
                     id: tg.initDataUnsafe.user?.id,
+                    first_name: tg.initDataUnsafe.user?.first_name,
+                    last_name: tg.initDataUnsafe.user?.last_name,
                     username: tg.initDataUnsafe.user?.username
-                }
-            };
-
-            const jsonString = JSON.stringify(formData);
-
-            // Validate size
-            const size = new Blob([jsonString]).size;
-            if (size > 4096) {
-                tg.showAlert('❌ Error: Data exceeds 4096 bytes limit!');
-                return;
-            }
-
-            // Show confirmation
-            tg.showConfirm('Send this data to your bot? The app will close after sending.', (confirmed) => {
-                if (confirmed) {
-                    try {
-                        tg.sendData(jsonString);
-                        // App will close automatically after sendData
-                    } catch (error) {
-                        tg.showAlert('❌ Error: ' + error.message);
-                    }
-                }
-            });
-        });
-
-        // Method 2: Preview JSON + Init Data
-        function previewMethod2() {
-            const formData = {
-                product: {
-                    name: document.getElementById('productName').value,
-                    quantity: parseInt(document.getElementById('quantity').value),
-                    price: parseFloat(document.getElementById('price').value)
                 },
-                notes: document.getElementById('notes').value,
-                timestamp: new Date().toISOString(),
-                method: 'serverAPI'
-            };
-
-            const fullData = {
-                appData: formData,
-                initData: tg.initData,
-                initDataUnsafe: tg.initDataUnsafe,
-                requestHeaders: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `tma ${tg.initData}`
-                }
-            };
-
-            const jsonString = JSON.stringify(fullData, null, 2);
-            const preview = document.getElementById('method2Preview');
-            preview.textContent = jsonString;
-            preview.classList.remove('hidden');
-
-            // Show popup with info
-            tg.showPopup({
-                title: '📊 Preview',
-                message: 'This shows what would be sent to your server. The initData must be validated server-side!',
-                buttons: [{type: 'ok'}]
-            });
-        }
-
-        // Method 2: Submit (Server API)
-        document.getElementById('method2Form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const serverUrl = document.getElementById('serverUrl').value;
-            
-            const formData = {
-                product: {
-                    name: document.getElementById('productName').value,
-                    quantity: parseInt(document.getElementById('quantity').value),
-                    price: parseFloat(document.getElementById('price').value)
+                formData: {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    age: document.getElementById('age').value ? parseInt(document.getElementById('age').value) : null,
+                    country: document.getElementById('country').value,
+                    message: document.getElementById('message').value,
+                    newsletter: document.getElementById('newsletter').checked
                 },
-                notes: document.getElementById('notes').value,
                 timestamp: new Date().toISOString(),
-                user: {
-                    id: tg.initDataUnsafe.user?.id,
-                    username: tg.initDataUnsafe.user?.username
-                }
-            };
-
-            // Demo mode - show what would be sent
-            tg.showPopup({
-                title: '🎯 Demo Mode',
-                message: `In production, this would send data to:\n${serverUrl}\n\nwith Authorization header containing initData for validation.`,
-                buttons: [{type: 'ok'}]
-            });
-
-            // In production, you would do:
-            /*
-            try {
-                const response = await fetch(serverUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `tma ${tg.initData}`
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-                
-                if (response.ok) {
-                    tg.showAlert('✅ Success: Data sent to server!');
-                } else {
-                    tg.showAlert('❌ Error: ' + result.error);
-                }
-            } catch (error) {
-                tg.showAlert('❌ Network Error: ' + error.message);
-            }
-            */
-        });
-
-        // Show Init Data
-        function showInitData() {
-            const initDataObj = {
-                initData_raw: tg.initData,
-                initDataUnsafe: tg.initDataUnsafe,
-                colorScheme: tg.colorScheme,
-                themeParams: tg.themeParams,
-                isExpanded: tg.isExpanded,
-                viewportHeight: tg.viewportHeight,
-                viewportStableHeight: tg.viewportStableHeight,
                 platform: tg.platform,
                 version: tg.version
             };
-
-            const jsonString = JSON.stringify(initDataObj, null, 2);
-            const display = document.getElementById('initDataDisplay');
-            display.textContent = jsonString;
-            display.classList.toggle('hidden');
         }
+
+        // Function to preview data
+        function previewData() {
+            const data = getFormData();
+            const jsonString = JSON.stringify(data, null, 2);
+            const size = new Blob([jsonString]).size;
+            
+            // Show preview
+            document.getElementById('previewBox').textContent = jsonString;
+            document.getElementById('previewSection').classList.remove('hidden');
+            
+            // Update size indicator
+            const sizeIndicator = document.getElementById('sizeIndicator');
+            sizeIndicator.textContent = `Size: ${size} bytes / 4096 bytes`;
+            
+            if (size > 4096) {
+                sizeIndicator.className = 'size-indicator size-error';
+                tg.showAlert('⚠️ Warning: Data size exceeds 4096 bytes limit!');
+            } else if (size > 3500) {
+                sizeIndicator.className = 'size-indicator size-warning';
+            } else {
+                sizeIndicator.className = 'size-indicator size-ok';
+            }
+            
+            // Scroll to preview
+            document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Handle form submission
+        document.getElementById('mainForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!document.getElementById('name').value || !document.getElementById('email').value) {
+                tg.showAlert('❌ Please fill in all required fields (Name and Email)');
+                return;
+            }
+            
+            // Get form data
+            const data = getFormData();
+            const jsonString = JSON.stringify(data);
+            const size = new Blob([jsonString]).size;
+            
+            // Check size limit
+            if (size > 4096) {
+                tg.showAlert('❌ Error: Data size exceeds 4096 bytes limit!\n\nPlease shorten your message or remove some data.');
+                return;
+            }
+            
+            // Show confirmation
+            tg.showConfirm(
+                `Send this data to the bot?\n\nSize: ${size} bytes\n\nThe app will close after sending.`,
+                function(confirmed) {
+                    if (confirmed) {
+                        try {
+                            // Send data to bot
+                            tg.sendData(jsonString);
+                            // App will close automatically after sendData
+                        } catch (error) {
+                            tg.showAlert('❌ Error: ' + error.message);
+                        }
+                    }
+                }
+            );
+        });
 
         // Enable closing confirmation for better UX
         tg.enableClosingConfirmation();
 
-        // Notify Telegram that the app is ready
-        console.log('Mini App initialized successfully');
+        // Log initialization
+        console.log('Telegram Mini App initialized');
         console.log('Platform:', tg.platform);
         console.log('Version:', tg.version);
         console.log('User:', tg.initDataUnsafe.user);
+        console.log('Color Scheme:', tg.colorScheme);
     </script>
 </body>
 </html>
